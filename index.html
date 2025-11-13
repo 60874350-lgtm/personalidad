@@ -1,0 +1,422 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Análisis de Potencial y Perfil Cuantitativo</title>
+    <style>
+        /* --- FUENTES, COLORES Y ESTRUCTURA PROFESIONAL --- */
+        :root {
+            --color-primary: #E91E63; /* Rosa Fuerte/Magenta */
+            --color-secondary: #F8BBD0; /* Rosa Pastel Claro */
+            --color-background-dark: #121212; /* Negro Oscuro */
+            --color-text-light: #F0F0F0; /* Blanco Suave */
+            --color-accent-border: #C2185B; /* Tono de borde oscuro */
+            --color-carmesi: #990000; /* Rojo Carmesí Intenso */
+            --color-highlight: #FF4081; /* Rosa más brillante para destacar */
+        }
+
+        /* --- FONDO DEL BODY: ROSAS BRILLANTES QUE APARECEN Y DESAPARECEN --- */
+        @keyframes roseShine {
+            0% { opacity: 0.1; transform: scale(0.95); } 
+            50% { opacity: 0.6; transform: scale(1.05); } 
+            100% { opacity: 0.1; transform: scale(0.95); } 
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            color: var(--color-background-dark);
+            padding: 20px;
+            background-color: #2b0000;
+            overflow-x: hidden; 
+        }
+        
+        /* Capa de fondo con las rosas brillantes (mantenida) */
+        .background-animated {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: -1; 
+            background-color: #2b0000; 
+            background-image: url("data:image/svg+xml;charset=UTF-8,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3e%3ctext x='10' y='90' font-size='90' fill='%23FFB3C1'%3e%f0%9f%8c%b9%3c/text%3e%3c/svg%3e"); /* Rosa ligeramente más clara (#FFB3C1) */
+            background-size: 100px 100px; 
+            background-repeat: repeat;
+            animation: roseShine 3s infinite alternate ease-in-out; 
+        }
+
+        /* Contenedor principal */
+        .container {
+            max-width: 750px; 
+            margin: 0 auto;
+            background-color: var(--color-background-dark);
+            color: var(--color-text-light);
+            padding: 40px;
+            border-radius: 12px; 
+            box-shadow: 0 8px 40px rgba(233, 30, 99, 0.5); 
+            position: relative;
+            z-index: 10;
+        }
+
+        /* Títulos y Header */
+        #mainTitle { 
+            color: var(--color-secondary); 
+            font-size: 2.4em; 
+            text-align: left;
+            border-bottom: 3px solid var(--color-primary); 
+            padding-bottom: 18px; margin-bottom: 40px;
+            font-weight: 300; 
+        }
+        #results h2 { 
+            color: var(--color-highlight); 
+            text-align: center; /* Asegura el centrado */
+            font-size: 2em; 
+            margin-bottom: 35px;
+            padding-top: 10px; 
+            text-shadow: 0 0 5px rgba(255, 64, 129, 0.5); 
+            line-height: 1.2; /* Ajuste para posible texto más corto */
+        }
+        #results h2 span#outNombre { 
+            color: var(--color-secondary); 
+            font-weight: 600;
+            text-transform: capitalize; 
+        }
+        
+        /* FORMULARIOS Y PREGUNTAS (diseño mantenido) */
+        fieldset { border: 1px solid var(--color-accent-border); padding: 15px 20px; margin-bottom: 20px; border-radius: 6px; }
+        legend { 
+            font-weight: 600; color: var(--color-text-light); 
+            background-color: var(--color-primary); 
+            padding: 5px 10px; border-radius: 4px; font-size: 0.9em;
+        }
+        input[type="text"], input[type="number"], select { 
+            width: 100%; padding: 8px; margin-bottom: 12px; 
+            box-sizing: border-box; border: 1px solid #777; 
+            border-radius: 4px; 
+            color: var(--color-background-dark);
+            background-color: #FFFFFF; 
+            font-family: Arial, sans-serif;
+            font-size: 1em;
+        }
+        .question-step p { 
+            font-weight: 600; margin-top: 15px; margin-bottom: 15px; 
+            color: var(--color-secondary); font-size: 1em; 
+        }
+        .options-container { display: flex; flex-direction: column; gap: 8px; }
+        .option-tile { 
+            background-color: #333; 
+            color: var(--color-text-light); 
+            padding: 10px; border-radius: 4px; cursor: pointer; 
+            font-weight: 400; transition: background-color 0.15s; 
+        }
+        .option-tile:hover { background-color: #444; }
+        .option-tile input[type="radio"]:checked + span { 
+            background-color: var(--color-primary); 
+            box-shadow: 0 0 8px var(--color-primary); 
+        }
+
+        /* --- RESULTADOS (Diseño Mejorado) --- */
+        .result-box {
+            background-color: #1a1a1a; 
+            color: var(--color-text-light); 
+            padding: 25px; 
+            border-radius: 8px; 
+            margin-top: 20px;
+            border: 1px solid var(--color-primary); 
+            transition: transform 0.3s ease;
+        }
+        .result-box:hover {
+            transform: translateY(-3px); 
+        }
+        .result-box h3 {
+            color: var(--color-highlight); 
+            font-weight: 700;
+            border-bottom: 2px solid #333; 
+            padding-bottom: 8px; margin-bottom: 15px; font-size: 1.3em;
+            letter-spacing: 0.5px; 
+        }
+        
+        .description-text { font-size: 1.05em; line-height: 1.6; color: var(--color-text-light); }
+        .description-text b { color: var(--color-secondary); font-weight: 600; } 
+        .small-text { font-size: 0.9em; opacity: 0.7; margin-top: 10px; color: var(--color-secondary); font-style: italic; }
+        .advice { 
+            border-left: 5px solid var(--color-primary); 
+            background-color: #262626; 
+            padding: 20px; 
+            margin-top: 30px; 
+        }
+        /* Utilitarios */
+        .interactive-btn { background-color: var(--color-primary); color: #FFFFFF; padding: 12px 20px; border-radius: 6px; font-weight: 600; transition: background-color 0.2s; font-family: 'Segoe UI', sans-serif; border: none; cursor: pointer; }
+        .interactive-btn:hover { background-color: var(--color-accent-border); }
+        .hidden { display: none; }
+    </style>
+</head>
+<body>
+
+<div class="background-animated"></div>
+
+<div class="container">
+    <h1 id="mainTitle">Análisis de Potencial y Perfil Cuantitativo</h1>
+    
+    <div id="startScreen">
+        <p>Inicie el procedimiento para generar un informe detallado basado en rasgos de personalidad, numerología y variables astrológicas.</p>
+        <button id="startButton" class="interactive-btn start-btn">▶️ Iniciar Procedimiento</button>
+    </div>
+
+    <form id="personalityForm" class="hidden">
+        
+        <div id="progressBarContainer" class="hidden">
+            <div id="progressText">Paso 1 de 6</div>
+            <div id="progressBar">
+                <div id="progressFill"></div>
+            </div>
+        </div>
+
+        <div id="step1" class="hidden step-content">
+            <fieldset>
+                <legend>📜 Parámetros de Identificación</legend>
+                <label for="nombre">Nombre Completo:</label>
+                <input type="text" id="nombre" required><br>
+
+                <label for="dia">Día de Nacimiento (1-31):</label>
+                <input type="number" id="dia" min="1" max="31" required><br>
+
+                <label for="mes">Mes de Nacimiento (1-12):</label>
+                <input type="number" id="mes" min="1" max="12" required><br>
+
+                <label for="anio">Año de Nacimiento (ej: 2005):</label>
+                <input type="number" id="anio" min="1900" max="2025" required><br>
+
+                <label for="genero">Género:</label>
+                <select id="genero" required>
+                    <option value="" disabled selected>Seleccione</option>
+                    <option value="M">Masculino</option>
+                    <option value="F">Femenino</option>
+                    <option value="O">No Binario/Otro</option>
+                </select>
+            </fieldset>
+            <button type="button" id="nextToQ1Btn" class="interactive-btn next-btn">📝 Siguiente: Evaluación de Rasgos</button>
+        </div>
+
+        <fieldset id="questionGroup" class="hidden">
+            <legend>📝 Módulo de Evaluación de Rasgos</legend>
+            
+            <div id="q1Div" class="question-step hidden" data-q-index="1">
+                <p>1. ¿Cómo optimiza su recuperación energética?</p>
+                <div class="options-container">
+                    <label for="q1-a" class="option-tile"><input type="radio" name="q1" id="q1-a" value="A" required><span>A) A través de la interacción social activa y redes.</span></label>
+                    <label for="q1-b" class="option-tile"><input type="radio" name="q1" id="q1-b" value="B"><span>B) Mediante la soledad, la reflexión y el silencio.</span></label>
+                    <label for="q1-c" class="option-tile"><input type="radio" name="q1" id="q1-c" value="C"><span>C) Combinando momentos sociales con retiros programados.</span></label>
+                    <label for="q1-d" class="option-tile"><input type="radio" name="q1" id="q1-d" value="D"><span>D) Durante actividades físicas o pasatiempos concretos.</span></label>
+                </div>
+            </div>
+
+            <div id="q2Div" class="question-step hidden" data-q-index="2">
+                <p>2. ¿Cuál es la base de su toma de decisiones clave?</p>
+                <div class="options-container">
+                    <label for="q2-a" class="option-tile"><input type="radio" name="q2" id="q2-a" value="A" required><span>A) Análisis lógico, datos objetivos y eficiencia.</span></label>
+                    <label for="q2-b" class="option-tile"><input type="radio" name="q2" id="q2-b" value="B"><span>B) Impacto humano, valores personales y armonía grupal.</span></label>
+                    <label for="q2-c" class="option-tile"><input type="radio" name="q2" id="q2-c" value="C"><span>C) Una evaluación balanceada de lógica y consecuencias éticas.</span></label>
+                    <label for="q2-d" class="option-tile"><input type="radio" name="q2" id="q2-d" value="D"><span>D) Juicios basados en la experiencia y casos anteriores.</span></label>
+                </div>
+            </div>
+            
+            <div id="q3Div" class="question-step hidden" data-q-index="3">
+                <p>3. ¿Cómo estructura su gestión de tareas y plazos?</p>
+                <div class="options-container">
+                    <label for="q3-a" class="option-tile"><input type="radio" name="q3" id="q3-a" value="A" required><span>A) Planeación estricta y detallada con calendarios fijos.</span></label>
+                    <label for="q3-b" class="option-tile"><input type="radio" name="q3" id="q3-b" value="B"><span>B) Flexibilidad y adaptabilidad, prefiriendo el flujo del momento.</span></label>
+                    <label for="q3-c" class="option-tile"><input type="radio" name="q3" id="q3-c" value="C"><span>C) Solo se planifica lo crítico; se improvisa en lo secundario.</span></label>
+                    <label for="q3-d" class="option-tile"><input type="radio" name="q3" id="q3-d" value="D"><span>D) Enfoque secuencial y metódico; una tarea a la vez.</span></label>
+                </div>
+            </div>
+            
+            <div id="q4Div" class="question-step hidden" data-q-index="4">
+                <p>4. ¿Cuál es su principal factor motivacional?</p>
+                <div class="options-container">
+                    <label for="q4-a" class="option-tile"><input type="radio" name="q4" id="q4-a" value="A" required><span>A) Logro, éxito tangible y reconocimiento de la competencia.</span></label>
+                    <label for="q4-b" class="option-tile"><input type="radio" name="q4" id="q4-b" value="B"><span>B) Contribución social, utilidad y bienestar de las relaciones.</span></label>
+                    <label for="q4-c" class="option-tile"><input type="radio" name="q4" id="q4-c" value="C"><span>C) Exploración de ideas, conocimiento y originalidad.</span></label>
+                    <label for="q4-d" class="option-tile"><input type="radio" name="q4" id="q4-d" value="D"><span>D) Generar un cambio duradero y positivo en el entorno.</span></label>
+                </div>
+            </div>
+            
+            <div id="q5Div" class="question-step hidden" data-q-index="5">
+                <p>5. ¿Cómo aborda una situación totalmente nueva?</p>
+                <div class="options-container">
+                    <label for="q5-a" class="option-tile"><input type="radio" name="q5" id="q5-a" value="A" required><span>A) Con acción inmediata y adaptación sobre la marcha.</span></label>
+                    <label for="q5-b" class="option-tile"><input type="radio" name="q5" id="q5-b" value="B"><span>B) Investigando a fondo y evaluando los riesgos antes de actuar.</span></label>
+                    <label for="q5-c" class="option-tile"><input type="radio" name="q5" id="q5-c" value="C"><span>C) Solicitando la guía de expertos o referencias externas.</span></label>
+                    <label for="q5-d" class="option-tile"><input type="radio" name="q5" id="q5-d" value="D"><span>D) Siguiendo la intuición o la primera impresión que genere.</span></label>
+                </div>
+                <button type="submit" id="submitBtn" class="interactive-btn next-btn hidden">Generar Informe</button>
+            </div>
+
+        </fieldset>
+
+    </form>
+
+    <div id="results" class="hidden">
+        <h2><span class="icon-esthetic">✨</span> <span id="outNombre"></span></h2>
+        
+        <p style="text-align: center; color: #aaa; font-size: 0.9em; margin-top: -10px; margin-bottom: 25px;">Fecha de Nacimiento: <span id="outFecha"></span></p>
+        
+        <div class="result-box">
+            <h3><span class="icon-esthetic">🧠</span> El Espectro de su Personalidad (Rasgos Clave):</h3>
+            <p id="outTipo" class="description-text"></p>
+        </div>
+
+        <div class="result-box">
+            <h3><span class="icon-esthetic">⭐</span> La Vibración Cósmica (Arquetipo Zodiacal):</h3>
+            <p id="outSigno" class="description-text"></p>
+            <p class="small-text" id="outCaracteristica"></p>
+        </div>
+        
+        <div class="result-box">
+            <h3><span class="icon-esthetic">🔢</span> El Código del Destino (Número de Vida):</h3>
+            <p id="outSuerte" class="description-text"></p>
+            <p class="small-text" id="outSignificado"></p>
+        </div>
+        
+        <div class="result-box summary">
+            <h3><span class="icon-esthetic">📈</span> Análisis de Potencial Ejecutivo:</h3>
+            <p id="outDescripcion" class="description-text"></p>
+        </div>
+
+        <div class="result-box advice">
+            <h3><span class="icon-esthetic">🧭</span> Vector Estratégico para la Excelencia:</h3>
+            <p id="outConsejo" class="description-text"></p>
+        </div>
+    </div>
+</div>
+
+<script>
+    document.addEventListener('DOMContentLoaded', () => {
+        const els = {
+            startButton: document.getElementById('startButton'), nextToQ1Btn: document.getElementById('nextToQ1Btn'),
+            optionsTiles: document.querySelectorAll('.option-tile input[type="radio"]'),
+            startScreen: document.getElementById('startScreen'), personalityForm: document.getElementById('personalityForm'),
+            step1: document.getElementById('step1'), questionGroup: document.getElementById('questionGroup'),
+            resultsDiv: document.getElementById('results'), progressBarContainer: document.getElementById('progressBarContainer'),
+            progressFill: document.getElementById('progressFill'), progressText: document.getElementById('progressText')
+        };
+        const totalStepsVisible = 6; 
+        
+        const updateProgress = (currentStep) => {
+            if (!els.progressBarContainer.classList.contains('hidden')) {
+                const progressRange = (currentStep / totalStepsVisible) * 100;
+                els.progressFill.style.width = `${progressRange}%`;
+                els.progressText.textContent = `Paso ${currentStep} de ${totalStepsVisible}`;
+            }
+        };
+        const getAnswer = (qName) => document.querySelector(`input[name="${qName}"]:checked`)?.value || '';
+
+        // *** LOGICA DE FLUJO (Sin Cambios) ***
+        els.startButton.addEventListener('click', () => {
+            els.startScreen.classList.add('hidden'); els.personalityForm.classList.remove('hidden');
+            els.progressBarContainer.classList.remove('hidden'); els.step1.classList.remove('hidden');
+            updateProgress(1); window.scrollTo({ top: 0, behavior: 'smooth' });
+        });
+
+        els.nextToQ1Btn.addEventListener('click', () => {
+            const dia = parseInt(document.getElementById('dia').value); const mes = parseInt(document.getElementById('mes').value);
+            if (!document.getElementById('nombre').value || isNaN(dia) || isNaN(mes) || !document.getElementById('genero').value) {
+                alert("⚠️ Por favor, complete todos los parámetros de identificación correctamente."); return;
+            }
+            els.step1.classList.add('hidden'); els.questionGroup.classList.remove('hidden');
+            document.getElementById('q1Div').classList.remove('hidden');
+            updateProgress(2); window.scrollTo({ top: 0, behavior: 'smooth' });
+        });
+
+        els.optionsTiles.forEach(radioInput => {
+            radioInput.addEventListener('change', (event) => {
+                const currentQDiv = event.target.closest('.question-step');
+                const currentQIndex = parseInt(currentQDiv.getAttribute('data-q-index'));
+                setTimeout(() => {
+                    currentQDiv.classList.add('hidden');
+                    if (currentQIndex < 5) {
+                        document.getElementById(`q${currentQIndex + 1}Div`).classList.remove('hidden');
+                        updateProgress(currentQIndex + 2); window.scrollTo({ top: 0, behavior: 'smooth' });
+                    } else {
+                        els.progressBarContainer.classList.add('hidden');
+                        setTimeout(() => document.getElementById('submitBtn').click(), 50); 
+                    }
+                }, 300);
+            });
+        });
+
+        // *** LOGICA DE CALCULO Y RESULTADOS (Sintaxis Mejorada) ***
+        els.personalityForm.addEventListener('submit', function(event) {
+            event.preventDefault();
+            const nombre = document.getElementById('nombre').value; const dia = parseInt(document.getElementById('dia').value);
+            const mes = parseInt(document.getElementById('mes').value); const anio = parseInt(document.getElementById('anio').value);
+            const r = [1, 2, 3, 4, 5].map(i => getAnswer(`q${i}`));
+            
+            // --- Funciones de Cálculo (Sin Cambios Funcionales) ---
+            const calcularNS = (d, m, a) => {
+                let suma = String(d) + String(m) + String(a); let total = [...suma].reduce((acc, digit) => acc + parseInt(digit), 0);
+                while (total > 9) { total = [...String(total)].reduce((acc, digit) => acc + parseInt(digit), 0); } return total;
+            };
+            const obtenerSigno = (d, m) => {
+                const s = { '3/21-4/19': '♈ Aries', '4/20-5/20': '♉ Tauro', '5/21-6/20': '♊ Géminis', '6/21-7/22': '♋ Cáncer', '7/23-8/22': '♌ Leo', '8/23-9/22': '♍ Virgo', '9/23-10/22': '♎ Libra', '10/23-11/21': '♏ Escorpio', '11/22-12/21': '♐ Sagitario', '12/22-1/19': '♑ Capricornio', '1/20-2/18': '♒ Acuario', '2/19-3/20': '♓ Piscis' };
+                const check = (range) => { const [start, end] = range.split('-'); const [sm, sd] = start.split('/').map(Number); const [em, ed] = end.split('/').map(Number); if (m === sm && d >= sd || m === em && d <= ed) return s[range]; return null; };
+                for (const range of Object.keys(s)) { const result = check(range); if (result) return result; } return "Desconocido";
+            };
+            const getCaracSigno = (s) => { 
+                const e = { 'Aries': 'Fuego: Iniciativa y coraje.', 'Tauro': 'Tierra: Estabilidad y sentido práctico.', 'Géminis': 'Aire: Comunicación e intelecto ágil.', 'Cáncer': 'Agua: Sensibilidad e intuición protectora.', 'Leo': 'Fuego: Liderazgo natural y nobleza.', 'Virgo': 'Tierra: Análisis detallado y precisión.', 'Libra': 'Aire: Búsqueda de armonía y justicia.', 'Escorpio': 'Agua: Profundidad y poder de transformación.', 'Sagitario': 'Fuego: Optimismo y espíritu aventurero.', 'Capricornio': 'Tierra: Disciplina y ambición estructurada.', 'Acuario': 'Aire: Innovación y visión humanitaria.', 'Piscis': 'Agua: Empatía y rica vida interior.' }; 
+                const cleanSigno = s.split(' ')[1];
+                return `El arquetipo que rige su influencia es de <b>${e[cleanSigno] || 'un misterio cósmico'}</b>, manifestando ${cleanSigno === 'Aries' ? 'un espíritu audaz' : cleanSigno === 'Virgo' ? 'una dedicación al detalle' : 'rasgos inherentes a su elemento cósmico'}.`; 
+            };
+            const getDescNS = (n) => { 
+                switch (n) { 
+                    case 1: return "El sendero del **Pionero y Liderazgo**: Irradia una vibración de autonomía, ambición y el impulso necesario para trazar rutas innovadoras."; 
+                    case 3: return "El sendero de la **Creatividad y Expresión**: Su número exalta la comunicación, el arte y la capacidad de inspirar a través del optimismo y el ingenio."; 
+                    case 4: return "El sendero de la **Estabilidad y Construcción**: Destaca por su enfoque metódico, su lealtad y la habilidad para cimentar estructuras duraderas en la realidad."; 
+                    case 6: return "El sendero de la **Armonía y Responsabilidad**: Manifiesta un fuerte sentido de servicio, protección y la búsqueda de equilibrio en el entorno familiar y comunitario."; 
+                    case 8: return "El sendero del **Poder y la Materialización**: Está dotado para la gestión de grandes proyectos, la autoridad y el logro de éxitos tangibles a largo plazo."; 
+                    default: return `El sendero del **Crecimiento y la Búsqueda**: Su vibración numérica única lo guía hacia un desarrollo personal constante y un profundo equilibrio interior.`; 
+                }
+            };
+            
+            // --- Análisis de personalidad (Sintaxis Mejorada) ---
+            const ext = r[0] === 'A' ? "Socialmente Activo" : r[0] === 'B' ? "Profundamente Reflexivo" : r[0] === 'C' ? "Interacción Selectiva" : "Enfoque en la Tarea";
+            const think = r[1] === 'A' ? "Lógica Fría y Eficiencia" : r[1] === 'B' ? "Empatía y Armonía" : r[1] === 'C' ? "Balance entre Razón y Ética" : "Pragmatismo Basado en la Historia";
+            const plan = r[2] === 'A' ? "Estructura Rígida y Disciplina" : r[2] === 'B' ? "Adaptabilidad y Flujo" : r[2] === 'C' ? "Planificación Esencial y Ejecución Flexible" : "Metodología Secuencial";
+            
+            const tipo = `Su **Estrategia Social** es de <b>${ext}</b>. Su **Vector Decisorio** se orienta hacia la <b>${think}</b>. Su **Ejecución Operacional** se define por la <b>${plan}</b>.`;
+            
+            // --- Generación del texto de la Conclusión (Sintaxis Enriquecida) --- 
+            let declaracion = `El perfil cuantitativo revela a un individuo de notable **perspicacia analítica** y una orientación innata hacia la **trascendencia**.`;
+            declaracion += ` Su competencia radica en la habilidad de ${r[1] === 'A' ? 'desmantelar problemas con lógica inquebrantable' : r[1] === 'B' ? 'construir consensos y valorar el bienestar colectivo' : 'utilizar un juicio ponderado que honra tanto la razón como el impacto humano'}.`;
+            declaracion += ` La motivación principal, anclada en ${r[3] === 'A' ? 'el logro tangible y la maestría' : r[3] === 'B' ? 'la contribución altruista y la conexión' : 'la búsqueda de conocimiento y la originalidad'}${r[3] === 'D' ? ' la generación de un impacto duradero' : ''}, lo impulsa a ser un **agente de influencia** en su dominio.`;
+            declaracion += ` Posee las coordenadas para una trayectoria de **éxito sustancial y resonante**.`;
+
+            // --- Generación del texto del Consejo (Sintaxis Enriquecida) ---
+            let consejo = "Para sublimar su potencial y asegurar una ventaja estratégica, considere lo siguiente:";
+            if (r[4] === 'D') { consejo += " **Modere el influjo intuitivo:** Aunque su intuición es potente, canalizarla a través de una verificación estructurada garantiza la optimización de sus decisiones de vanguardia. "; }
+            else if (r[2] === 'B' || r[2] === 'C') { consejo += " **Estandarice su visión:** La flexibilidad es un don, pero la definición de un marco de objetivos no negociable le proporcionará la infraestructura para escalar sus logros. "; }
+            else if (r[0] === 'B' || r[0] === 'D') { consejo += " **Ejerza la amplificación:** Compartir sus valiosos procesos internos y perspectivas únicas no solo enriquecerá a su red, sino que maximizará su visibilidad estratégica. "; }
+            else { consejo += " **Preserve el equilibrio:** Su dominio entre la lógica y la sensibilidad es un raro activo. Continúe nutriendo esta síntesis para alcanzar una autoridad decisoria completa. "; }
+            
+            // Mapeo y Muestra de Resultados
+            document.getElementById('outNombre').textContent = nombre; 
+            document.getElementById('outFecha').textContent = `${dia}/${mes}/${anio}`;
+            document.getElementById('outTipo').innerHTML = tipo;
+            document.getElementById('outSigno').textContent = obtenerSigno(dia, mes);
+            document.getElementById('outCaracteristica').innerHTML = getCaracSigno(document.getElementById('outSigno').textContent);
+            document.getElementById('outSuerte').innerHTML = `El dígito maestro que rige su destino es el **${calcularNS(dia, mes, anio)}**.`; 
+            document.getElementById('outSignificado').innerHTML = getDescNS(calcularNS(dia, mes, anio));
+            document.getElementById('outDescripcion').innerHTML = declaracion;
+            document.getElementById('outConsejo').innerHTML = consejo;
+
+            els.questionGroup.classList.add('hidden'); 
+            els.resultsDiv.classList.remove('hidden'); 
+            els.resultsDiv.scrollIntoView({ behavior: 'smooth' });
+        });
+    });
+</script>
+
+</body>
+</html>
+```http://googleusercontent.com/image_generation_content/0
